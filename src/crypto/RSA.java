@@ -6,8 +6,6 @@
 package crypto;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Random;
 
 /**
