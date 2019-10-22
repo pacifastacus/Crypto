@@ -5,14 +5,19 @@
  */
 package crypto;
 
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
 /**
  *
  * @author palkovics
  */
-public interface ICryptoSystem {
+public interface IAssymetricCryproSystem {
     public KeyPair keyGen(int size, int confidency);
-    public String encode(String message, Key publicKey);
-    public String decode(String code, Key secretKey);
+    public String encode(String message, PublicKey publicKey) throws InvalidKeyException;
+    public String decode(String code, PrivateKey secretKey) throws InvalidKeyException;
     public static String[] cuttingMessage(String message, int size) {
     	return new String[0];
     }

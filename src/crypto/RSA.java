@@ -6,13 +6,18 @@
 package crypto;
 
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.security.PrivateKey;
 import java.util.Random;
 
 /**
  *
  * @author palkovics
  */
-public class RSA implements ICryptoSystem{
+public class RSA implements IAssymetricCryproSystem{
     
     private boolean millerRabin(BigInteger p){
         return p.isProbablePrime(10);
@@ -34,16 +39,17 @@ public class RSA implements ICryptoSystem{
         System.err.println("primes found!");
         
         //Calculate Euler's phy function phy(n)=(p-1)*(q-1)
-//        phyN = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+        //Because of p and q odds, we can subtract 1 from them by flipping the last bit
         phyN = p.flipBit(0).multiply(q.flipBit(0));
         
         //Choose e: 3<e<phy(n) and gcd(e,phy(n))=1
+        //Because gcd(e,phy(n)=1 and phy(n) an even number, e must be odd 
         do {
         	e = new BigInteger(size, new Random());
         	//if e is even subtract one from it (optimization)
-//        	if(!e.testBit(0)) {
-//        		e.flipBit(0);
-//        	}
+        	if(!e.testBit(0)) {
+        		e.flipBit(0);
+        	}
         }while(Euclidean.euclid(e, phyN).equals(BigInteger.ONE));
         System.err.println("encryptor exponent found!");
         
@@ -58,30 +64,33 @@ public class RSA implements ICryptoSystem{
         }
         System.err.println("decryptor exponent calculated!");
         
-        //Assemble the Keys
-        return new RSAKeyPair(n, e, d);
+        return new KeyPair(new RSA_PK(n,e), new RSA_SK(n,d));
 	}
 
 	@Override
-	public String encode(String message, Key publicKey) {
-		RSAKey castedKey = (RSAKey) publicKey;
-		String[] messageblocks = cuttingMessage(message, castedKey.getModulus().bitCount());
+	public String encode(String message, PublicKey publicKey) throws InvalidKeyException{
+		if(!publicKey.getAlgorithm().equals("RSA"))
+		{
+			throw new InvalidKeyException("The provided 'publicKey' is not an RSA key");
+		}
+		String[] messageblocks = cuttingMessage(message, publicKey.getModulus().bitCount());
 		BigInteger m, c;
 		String code = "";
 		for(int i = 0; i < messageblocks.length; i++) {
 //			m = new BigInteger(messageblocks[i].getBytes(StandardCharsets.UTF_8));
 			m = new BigInteger(messageblocks[i].getBytes());
-			c = m.modPow(castedKey.getExponent(), castedKey.getModulus());
+			c = m.modPow(publicKey.getPublicExponent(), publicKey.getModulus());
 			
 //			code = code.concat(new String(c.toByteArray(),StandardCharsets.UTF_8));
 			code = code.concat(new String(c.toByteArray()));
 		}
 		return code;
 	}
-
+	
 	@Override
-	public String decode(String code, Key secretKey) {
-		return encode(code, secretKey);
+	public String decode(String code, PrivateKey secretKey) {
+		//TODO
+		return null;
 	}
 
 
