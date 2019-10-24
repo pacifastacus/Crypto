@@ -14,10 +14,10 @@ import java.security.PublicKey;
  *
  * @author palkovics
  */
-public interface IAssymetricCryproSystem {
+public interface IAssymetricCryptoSystem {
     public KeyPair keyGen(int size, int confidency);
-    public String encode(String message, PublicKey publicKey) throws InvalidKeyException;
-    public String decode(String code, PrivateKey secretKey) throws InvalidKeyException;
+    public byte[] encode(String message, PublicKey publicKey) throws InvalidKeyException;
+    public String decode(byte[] code, PrivateKey secretKey) throws InvalidKeyException;
     public static String[] cuttingMessage(String message, int size) {
     	return new String[0];
     }

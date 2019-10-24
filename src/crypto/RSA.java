@@ -68,14 +68,15 @@ public class RSA implements IAssymetricCryproSystem{
 	}
 
 	@Override
-	public String encode(String message, PublicKey publicKey) throws InvalidKeyException{
+	public byte[] encode(String message, PublicKey publicKey) throws InvalidKeyException{
 		if(!publicKey.getAlgorithm().equals("RSA"))
 		{
 			throw new InvalidKeyException("The provided 'publicKey' is not an RSA key");
 		}
+		
 		String[] messageblocks = cuttingMessage(message, publicKey.getModulus().bitCount());
 		BigInteger m, c;
-		String code = "";
+		byte[] code = new byte[publicKey.getModulus().bitCount()];
 		for(int i = 0; i < messageblocks.length; i++) {
 //			m = new BigInteger(messageblocks[i].getBytes(StandardCharsets.UTF_8));
 			m = new BigInteger(messageblocks[i].getBytes());
