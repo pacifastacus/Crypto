@@ -13,7 +13,8 @@ import java.security.PublicKey;
 import java.security.PrivateKey;
 import java.util.Random;
 
-/**
+/** RSA crypto system
+ * Apply the RSA cryptosystem
  *
  * @author palkovics
  */

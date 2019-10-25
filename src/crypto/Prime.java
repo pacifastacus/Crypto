@@ -5,15 +5,22 @@ import java.util.Random;
 
 final class Prime {
 	/**
-	 * 
-	 * @param n
-	 * @return false if n is maybe prime, true if n is surely a composite
+	 * The Miller-Rabin compositeness test
+	 * @param n is the tested number
+	 * @param witness is the witness for the compositeness of n (can't be higher than n)
+	 * @return true if n is surely a composite, else n is MAYBE prime
 	 */
-	static boolean millerRabin(BigInteger n, long withness){
-        BigInteger a = BigInteger.valueOf(withness);
+	static boolean millerRabin(BigInteger n, int witness){
+        BigInteger a = BigInteger.valueOf(witness);
         BigInteger d = n.subtract(BigInteger.ONE);
         long s = 0;
         long r = 1;
+        
+        //make sure w is positive and odd
+        witness = Math.abs(witness);
+        if(witness % 2 == 0)
+			witness++;
+        
         //Bontsuk fel n-1-t a^s és d szorzataira
         while(d.mod(a).equals(BigInteger.ZERO)) {
         	d = d.divide(a);
@@ -43,8 +50,11 @@ final class Prime {
 	static boolean isPrime(BigInteger num, int trials) {
 		boolean result;
 		for(int i = 0; i < trials; i++) {
-			long w = new Random().nextLong();
-			result = millerRabin(num, w)
+			int w = Math.abs(new Random().nextInt(num.intValue()));
+			System.err.println("witness is: "+w);
+			result = millerRabin(num, w);
+			if(result)
+				return false;
 		}
 		
 		return true;
