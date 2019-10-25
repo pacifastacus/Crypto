@@ -18,7 +18,7 @@ import java.util.Random;
  *
  * @author palkovics
  */
-public class RSA implements IAssymetricCryproSystem{
+public class RSA implements IAssymetricCryptoSystem{
     
     private boolean millerRabin(BigInteger p){
         return p.isProbablePrime(10);
@@ -34,8 +34,12 @@ public class RSA implements IAssymetricCryproSystem{
 				   phyN;
 		//Choose p, q big primes and n=p*q
 		//TODO p és q millerRabin teszttel kell meghatározni!
-        p = new BigInteger(size, confidency, new Random());
-        q = new BigInteger(size, confidency, new Random());
+        do{
+            p = new BigInteger(size, new Random());
+        }while(Prime.isPrime(p,4));
+        do {
+        	q = new BigInteger(size, new Random());
+        }while(Prime.isPrime(q,4)); 
         n = p.multiply(q);
         System.err.println("primes found!");
         
@@ -65,7 +69,7 @@ public class RSA implements IAssymetricCryproSystem{
         }
         System.err.println("decryptor exponent calculated!");
         
-        return new KeyPair(new RSA_PK(n,e), new RSA_SK(n,d));
+        return new KeyPair(new RSA_PK(n,e), new RSA_SK(p,q,d));
 	}
 
 	@Override

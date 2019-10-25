@@ -46,7 +46,13 @@ final class Prime {
         }
         return true;
     }
-        
+    /**
+     * Test is num is a prime, using the Miller-Rabin test.
+     * The certainity for num is a prime number is 1/4^trials.
+     * @param num is the tested number
+     * @param trials the certainity level 
+     * @return true, if num is probably a prime
+     */
 	static boolean isPrime(BigInteger num, int trials) {
 		boolean result;
 		for(int i = 0; i < trials; i++) {
