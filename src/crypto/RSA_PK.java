@@ -17,8 +17,6 @@ class RSA_PK extends RSAKey implements RSAPublicKey {
 
 	@Override
 	public BigInteger getPublicExponent() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.exponent;
 	}
-
 }
