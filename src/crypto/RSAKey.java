@@ -41,5 +41,9 @@ class RSAKey implements java.security.Key, java.security.interfaces.RSAKey{
 	public AlgorithmParameterSpec  getParams() {
 		return null;
 	}
+
+	public String toString() {
+		return "[mod="+modulus+", exp="+exponent+"]";
+	}
 	
 }
