@@ -5,6 +5,7 @@
  */
 package crypto;
 
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -16,9 +17,8 @@ import java.security.PublicKey;
  */
 public interface IAssymetricCryptoSystem {
     public KeyPair keyGen(int size, int confidency);
-    public byte[] encode(String message, PublicKey publicKey) throws InvalidKeyException;
-    public String decode(byte[] code, PrivateKey secretKey) throws InvalidKeyException;
-    public static String[] cuttingMessage(String message, int size) {
-    	return new String[0];
-    }
+    public BigInteger encode(BigInteger num, PublicKey publicKey) throws InvalidKeyException;
+    public BigInteger decode(BigInteger code, PrivateKey secretKey) throws InvalidKeyException;
+    public byte[] crypt(String message, PublicKey publicKey) throws InvalidKeyException;
+    public String decrypt(byte[] code, PrivateKey secretKey) throws InvalidKeyException;
 }

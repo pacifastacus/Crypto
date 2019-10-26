@@ -9,7 +9,7 @@ public final class TestMillerRabin {
 		//System.out.println(Prime.millerRabin(BigInteger.valueOf(12738),7));
 		BigInteger num = new BigInteger(10, new Random());
 		System.out.println("test if "+num+" is prime");
-		System.out.println(Prime.isPrime(num, 4));
+		System.out.println(Algorithm.isPrime(num, 4));
 	}
 
 }

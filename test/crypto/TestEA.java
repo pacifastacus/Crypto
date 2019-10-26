@@ -15,9 +15,9 @@ public class TestEA {
     public static void main(String[] args) {
         BigInteger a = new BigInteger("280");
         BigInteger b = new BigInteger("32");
-        BigInteger ea = Euclidean.euclid(a, b);
+        BigInteger ea = Algorithm.euclid(a, b);
         System.err.println("EA finished");
-        BigInteger[] eea = Euclidean.extEuclid(a, b);
+        BigInteger[] eea = Algorithm.extEuclid(a, b);
         System.err.println("EEA finished");
         boolean ea_corr = ea.equals(a.gcd(b));
         boolean eea1_corr = eea[0].equals(a.gcd(b));

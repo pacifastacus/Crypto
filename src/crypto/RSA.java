@@ -6,11 +6,13 @@
 package crypto;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.PrivateKey;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Random;
 
 /** RSA crypto system
@@ -19,11 +21,7 @@ import java.util.Random;
  * @author palkovics
  */
 public class RSA implements IAssymetricCryptoSystem{
-    
-    private boolean millerRabin(BigInteger p){
-        return p.isProbablePrime(10);
-    }
-    
+    private int MOD_SIZE = 0;	//byte size of modulo ( n ) 
 	@Override
 	public KeyPair keyGen(int size, int confidency) {
 		BigInteger p,
@@ -33,14 +31,14 @@ public class RSA implements IAssymetricCryptoSystem{
 				   d,
 				   phyN;
 		//Choose p, q big primes and n=p*q
-		//TODO p és q millerRabin teszttel kell meghatározni!
         do{
             p = new BigInteger(size, new Random());
-        }while(Prime.isPrime(p,4));
+        }while(Algorithm.isPrime(p,confidency));
         do {
         	q = new BigInteger(size, new Random());
-        }while(Prime.isPrime(q,4)); 
+        }while(Algorithm.isPrime(q,confidency)); 
         n = p.multiply(q);
+        MOD_SIZE = n.bitLength()/8;
         System.err.println("primes found!");
         
         //Calculate Euler's phy function phy(n)=(p-1)*(q-1)
@@ -55,11 +53,11 @@ public class RSA implements IAssymetricCryptoSystem{
         	if(!e.testBit(0)) {
         		e.flipBit(0);
         	}
-        }while(Euclidean.euclid(e, phyN).equals(BigInteger.ONE));
+        }while(Algorithm.euclid(e, phyN).equals(BigInteger.ONE));
         System.err.println("encryptor exponent found!");
         
         //calculate d
-        BigInteger[] dxy = Euclidean.extEuclid(e, phyN);
+        BigInteger[] dxy = Algorithm.extEuclid(e, phyN);
         if(dxy[1].compareTo(BigInteger.ONE)<0) {
         	d = dxy[1].add(phyN);
         }else if(dxy[1].compareTo(phyN)>0){
@@ -71,52 +69,99 @@ public class RSA implements IAssymetricCryptoSystem{
         
         return new KeyPair(new RSA_PK(n,e), new RSA_SK(p,q,d));
 	}
-
+	
+	public int getModSize() {
+		return MOD_SIZE;
+	}
 	@Override
-	public byte[] encode(String message, PublicKey publicKey) throws InvalidKeyException{
+	public BigInteger encode(BigInteger num, PublicKey publicKey) throws InvalidKeyException{
 		if(!publicKey.getAlgorithm().equals("RSA"))
 		{
 			throw new InvalidKeyException("The provided 'publicKey' is not an RSA key");
 		}
-		
-		String[] messageblocks = cuttingMessage(message, publicKey.getModulus().bitCount());
-		BigInteger m, c;
-		byte[] code = new byte[publicKey.getModulus().bitCount()];
-		for(int i = 0; i < messageblocks.length; i++) {
-//			m = new BigInteger(messageblocks[i].getBytes(StandardCharsets.UTF_8));
-			m = new BigInteger(messageblocks[i].getBytes());
-			c = m.modPow(publicKey.getPublicExponent(), publicKey.getModulus());
-			
-//			code = code.concat(new String(c.toByteArray(),StandardCharsets.UTF_8));
-			code = code.concat(new String(c.toByteArray()));
-		}
-		return code;
+		//Casting publickey to RSA_PK
+		RSA_PK PK = (RSA_PK)publicKey;
+		return Algorithm.quickPow(num, PK.getPublicExponent(), PK.getModulus());
 	}
 	
 	@Override
-	public String decode(String code, PrivateKey secretKey) {
-		//TODO
-		return null;
+	public BigInteger decode(BigInteger code, PrivateKey secretKey) throws InvalidKeyException {
+		if(!secretKey.getAlgorithm().equals("RSA"))
+		{
+			throw new InvalidKeyException("The provided 'publicKey' is not an RSA key");
+		}
+		RSA_SK SK = (RSA_SK)secretKey;
+		return Algorithm.quickPow(code, SK.getPrivateExponent(), SK.getModulus());
 	}
 
-
-	public static String[] cuttingMessage(String message, int size) {
-		int numberOfBlocks = (int)Math.ceil((double)message.length()/size);
-		String[] retVal = new String[numberOfBlocks];
+	@Override
+	public byte[] crypt(String message, PublicKey publicKey) throws InvalidKeyException {
+		LinkedList<byte[]> blocks = new LinkedList<byte[]>();
+		byte[] bytesOfMessage = message.getBytes(StandardCharsets.UTF_8);
 		
-		for(int i = 0; i < numberOfBlocks; i++) {
+		//If the message is short enough we must encode it once
+//		if(message.length()<MOD_SIZE-1) {
+//			BigInteger m = new BigInteger(bytesOfMessage);
+//			return encode(m,publicKey).toByteArray();
+//		}
+		
+		//Cut message to blocks which value less than the size of modulo
+		for(int i = 0; i<Math.ceil((double)message.length()/(MOD_SIZE-1));i++) {
 			try {
-				retVal[i] = message.substring(size*i, size*(i+1));
+				blocks.add(Arrays.copyOfRange(bytesOfMessage, i*(MOD_SIZE-1), (i+1)*(MOD_SIZE-1)));
+			}catch (ArrayIndexOutOfBoundsException e) {
+				System.err.println("JAJJLACI");
 			}
-			catch (IndexOutOfBoundsException e) {
-				String fill = "";
-				while(fill.length() < size-1) {
-					fill = fill.concat("*");
-				}
-				retVal[i] = message.substring(size*i).concat(fill);
+			
+		}
+		System.err.println("blocks number:"+blocks.size());
+		byte[] code = new byte[blocks.toArray().length*MOD_SIZE+1];
+		int i = 0;
+		for (byte[] block : blocks) {
+			BigInteger m = new BigInteger(block);
+			block = encode(m, publicKey).toByteArray();
+			
+			for (byte b : block) {
+				code[i++] = b;
 			}
 		}
-		return retVal;
+		System.err.println("code lenght:"+code.length);
+		return code;
+	}
+
+	@Override
+	public String decrypt(byte[] code, PrivateKey secretKey) throws InvalidKeyException {
+		LinkedList<byte[]> blocks = new LinkedList<byte[]>();
+		System.err.println("code length:"+code.length);
 		
+		for(int i = 0; i<Math.ceil((double)code.length/MOD_SIZE-1); i++) {
+			blocks.push(Arrays.copyOfRange(code, i*(MOD_SIZE-1), (i+1)*(MOD_SIZE-1)));
+		}
+		String message = ""; 
+		for (byte[] block : blocks) {
+			BigInteger c = new BigInteger(block);
+			block = decode(c, secretKey).toByteArray();	
+			message.concat(new String(block));
+		}
+		
+		System.err.println("blocks number=" +blocks.size());
+		return message;
+	}
+	
+	public static LinkedList<byte[]> cuttingMessage(String message, int size){
+//		int numberOfBlocks = (int)Math.ceil((double)message.getBytes().length/size);
+//		byte[][] retVal = new byte[size][numberOfBlocks];
+		LinkedList<byte[]> retVal = new LinkedList<byte[]>();
+		byte[] m = message.getBytes();
+		
+		for(int i = 0; i<size; i++){
+			try {
+				retVal.push(Arrays.copyOfRange(m, i*size, (i+1)*size));
+			}catch (ArrayIndexOutOfBoundsException e) {
+				System.err.println("JAJJLACI");
+			}
+		}
+		
+		return retVal;
 	}
 }

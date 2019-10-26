@@ -13,7 +13,7 @@ final class TestQuickPow {
 		System.out.println("num:\t" + num
 				+ "\nexp:\t" + exp
 				+ "\nmod:\t" + mod);
-		System.out.println(Modular.quickPow(num, exp, mod));
+		System.out.println(Algorithm.quickPow(num, exp, mod));
 		System.out.println(new BigInteger(Integer.toString(num)).
 				modPow(BigInteger.valueOf(exp),BigInteger.valueOf(mod)));
 	}
