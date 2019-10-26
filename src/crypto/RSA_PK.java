@@ -19,5 +19,4 @@ class RSA_PK extends RSAKey implements RSAPublicKey {
 	public BigInteger getPublicExponent() {
 		return this.exponent;
 	}
-
 }

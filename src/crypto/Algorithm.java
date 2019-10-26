@@ -1,6 +1,7 @@
 package crypto;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Algorithm {
@@ -108,6 +109,22 @@ public class Algorithm {
 		Random rnd = new Random();		
 		int r = 0;
 		
+		//short-cut for little primes
+		try{
+			int p = num.intValueExact();
+			if(p <= 1)
+				return false;
+			int[] primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 
+					37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 
+					89, 97, 101};
+			
+			if(Arrays.binarySearch(primes, p)>=0)
+				return true;
+		}
+		catch(ArithmeticException e) {
+			;
+		}
+	
 		//calculate r,d so num = 2^r * d + 1
 		while(d.mod(BigInteger.valueOf(2)).equals(BigInteger.ZERO)) {
         	d = d.divide(BigInteger.valueOf(2));
@@ -117,7 +134,7 @@ public class Algorithm {
 		for(int i = 0; i < trials; i++) {
 			//pick a witness between [2,n-2]
 			do {
-				a = new BigInteger(num.bitCount(), rnd);
+				a = new BigInteger(8, rnd);
 			}while(a.compareTo(num.subtract(BigInteger.ONE)) >= 0 ||
 					a.compareTo(BigInteger.ONE) <= 0);
 			x = quickPow(a, d, num);

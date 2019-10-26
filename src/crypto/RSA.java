@@ -16,14 +16,35 @@ import java.util.LinkedList;
 import java.util.Random;
 
 /** RSA crypto system
- * Apply the RSA cryptosystem
+ * Implements the RSA cryptosystem
  *
  * @author palkovics
  */
 public class RSA implements IAssymetricCryptoSystem{
-    private int MOD_SIZE = 0;	//byte size of modulo ( n ) 
+    private final int SIZE;	//size of primes in bits
+    private int MOD_SIZE = 0;	//byte size of modulo ( n )
+    
+    public RSA(int size) {
+    	this.SIZE = size;
+    }
+    /**
+     * Generate a prime number, which primarilty tested with Algorithm.isPrime()
+     * @param confidency
+     * @return a propably prime number
+     */
+	private BigInteger prime(int confidency) {
+    	BigInteger p;
+    	System.err.print("Searching prime");
+    	do{
+            p = new BigInteger(SIZE, new Random());
+            p = p.setBit(0).setBit(SIZE);
+            System.err.print(".");
+        }while(!Algorithm.isPrime(p,confidency));
+    	System.err.println("DONE");
+    	return p;
+	}
 	@Override
-	public KeyPair keyGen(int size, int confidency) {
+	public KeyPair keyGen(int confidency) {
 		BigInteger p,
 				   q,
 				   n,
@@ -31,29 +52,22 @@ public class RSA implements IAssymetricCryptoSystem{
 				   d,
 				   phyN;
 		//Choose p, q big primes and n=p*q
-        do{
-            p = new BigInteger(size, new Random());
-        }while(Algorithm.isPrime(p,confidency));
-        do {
-        	q = new BigInteger(size, new Random());
-        }while(Algorithm.isPrime(q,confidency)); 
+        p = prime(confidency);
+        q = prime(confidency);
         n = p.multiply(q);
         MOD_SIZE = n.bitLength()/8;
         System.err.println("primes found!");
-        
         //Calculate Euler's phy function phy(n)=(p-1)*(q-1)
-        //Because of p and q odds, we can subtract 1 from them by flipping the last bit
-        phyN = p.flipBit(0).multiply(q.flipBit(0));
+        //Because of p and q odds, we can subtract 1 from them by resetting the last bit
+        phyN = p.clearBit(0).multiply(q.clearBit(0));
         
         //Choose e: 3<e<phy(n) and gcd(e,phy(n))=1
         //Because gcd(e,phy(n)=1 and phy(n) an even number, e must be odd 
         do {
-        	e = new BigInteger(size, new Random());
+        	e = new BigInteger(SIZE, new Random());
         	//if e is even subtract one from it (optimization)
-        	if(!e.testBit(0)) {
-        		e.flipBit(0);
-        	}
-        }while(Algorithm.euclid(e, phyN).equals(BigInteger.ONE));
+        	e.clearBit(0);
+        }while(!Algorithm.euclid(e, phyN).equals(BigInteger.ONE));
         System.err.println("encryptor exponent found!");
         
         //calculate d
@@ -73,6 +87,46 @@ public class RSA implements IAssymetricCryptoSystem{
 	public int getModSize() {
 		return MOD_SIZE;
 	}
+	
+	/**
+	 * Key generation resuing p and q primes which contained by sk. This means that only the exponent of the key changed
+	 * @param keys private key
+	 * @return a new keypair
+	 */
+	public KeyPair reKeyGen(KeyPair keys) {
+		RSA_PK pk = (RSA_PK)keys.getPublic();
+		RSA_SK sk = (RSA_SK)keys.getPrivate();
+		BigInteger[] primes = sk.getPrimes();
+		BigInteger e,
+				   d;
+		//Calculate Euler's phy function phy(n)=(p-1)*(q-1)
+        //Because of p and q odds, we can subtract 1 from them by resetting the last bit
+		BigInteger phy = primes[0].clearBit(0).multiply(primes[1].clearBit(0));
+		
+		//Choose e: 3<e<phy(n) and gcd(e,phy(n))=1
+        //Because gcd(e,phy(n)=1 and phy(n) an even number, e must be odd 
+        do {
+        	e = new BigInteger(SIZE, new Random());
+        	//if e is even subtract one from it (optimization)
+        	e.clearBit(0);
+        }while(!Algorithm.euclid(e, phy).equals(BigInteger.ONE) || e.equals(pk.getPublicExponent()));
+        System.err.println("encryptor exponent found!");
+        
+        //calculate d
+        BigInteger[] dxy = Algorithm.extEuclid(e, phy);
+        if(dxy[1].compareTo(BigInteger.ONE)<0) {
+        	d = dxy[1].add(phy);
+        }else if(dxy[1].compareTo(phy)>0){
+        	d = dxy[1].subtract(phy);
+        }else {
+        	d = dxy[1];
+        }
+        System.err.println("decryptor exponent calculated!");
+        
+        return new KeyPair(new RSA_PK(primes[0].multiply(primes[1]),e), 
+        		new RSA_SK(primes[0],primes[1],d));
+	}
+	
 	@Override
 	public BigInteger encode(BigInteger num, PublicKey publicKey) throws InvalidKeyException{
 		if(!publicKey.getAlgorithm().equals("RSA"))
@@ -82,16 +136,18 @@ public class RSA implements IAssymetricCryptoSystem{
 		//Casting publickey to RSA_PK
 		RSA_PK PK = (RSA_PK)publicKey;
 		return Algorithm.quickPow(num, PK.getPublicExponent(), PK.getModulus());
+		//return num.modPow(PK.getPublicExponent(), PK.getModulus());
 	}
 	
 	@Override
 	public BigInteger decode(BigInteger code, PrivateKey secretKey) throws InvalidKeyException {
 		if(!secretKey.getAlgorithm().equals("RSA"))
 		{
-			throw new InvalidKeyException("The provided 'publicKey' is not an RSA key");
+			throw new InvalidKeyException("The provided 'secretKey' is not an RSA key");
 		}
 		RSA_SK SK = (RSA_SK)secretKey;
 		return Algorithm.quickPow(code, SK.getPrivateExponent(), SK.getModulus());
+		//return code.modPow(SK.getPrivateExponent(), SK.getModulus());
 	}
 
 	@Override
@@ -115,7 +171,7 @@ public class RSA implements IAssymetricCryptoSystem{
 			
 		}
 		System.err.println("blocks number:"+blocks.size());
-		byte[] code = new byte[blocks.toArray().length*MOD_SIZE+1];
+		byte[] code = new byte[blocks.toArray().length*(MOD_SIZE+1)];
 		int i = 0;
 		for (byte[] block : blocks) {
 			BigInteger m = new BigInteger(block);
@@ -147,6 +203,7 @@ public class RSA implements IAssymetricCryptoSystem{
 		System.err.println("blocks number=" +blocks.size());
 		return message;
 	}
+	
 	
 	public static LinkedList<byte[]> cuttingMessage(String message, int size){
 //		int numberOfBlocks = (int)Math.ceil((double)message.getBytes().length/size);
