@@ -170,7 +170,6 @@ public class RSA implements IAssymetricCryptoSystem{
 			}
 			
 		}
-		System.err.println("blocks number:"+blocks.size());
 		byte[] code = new byte[blocks.toArray().length*(MOD_SIZE+1)];
 		int i = 0;
 		for (byte[] block : blocks) {
@@ -181,26 +180,28 @@ public class RSA implements IAssymetricCryptoSystem{
 				code[i++] = b;
 			}
 		}
-		System.err.println("code lenght:"+code.length);
 		return code;
 	}
 
 	@Override
 	public String decrypt(byte[] code, PrivateKey secretKey) throws InvalidKeyException {
 		LinkedList<byte[]> blocks = new LinkedList<byte[]>();
-		System.err.println("code length:"+code.length);
 		
 		for(int i = 0; i<Math.ceil((double)code.length/MOD_SIZE-1); i++) {
 			blocks.push(Arrays.copyOfRange(code, i*(MOD_SIZE-1), (i+1)*(MOD_SIZE-1)));
 		}
-		String message = ""; 
+		String message = "";
+		System.err.println("visszafejtett üzenet:");
 		for (byte[] block : blocks) {
 			BigInteger c = new BigInteger(block);
-			block = decode(c, secretKey).toByteArray();	
-			message.concat(new String(block));
+			block = decode(c, secretKey).toByteArray();
+			for (byte b : block) {
+				System.out.print(b + " ");
+			}
 		}
-		
-		System.err.println("blocks number=" +blocks.size());
+		System.out.println();
+//		System.err.println("blocks number=" +blocks.size());
+
 		return message;
 	}
 	

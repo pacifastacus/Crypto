@@ -1,5 +1,6 @@
 package crypto;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 
@@ -13,6 +14,11 @@ public class TestRSA {
 		String message = "Foobar zarathustra";
 		byte[] code;
 		System.out.println("üzenet:\n"+message);
+		byte[] bytesOfMessage = message.getBytes(StandardCharsets.UTF_8);
+		for(byte b : bytesOfMessage) {
+			System.out.print(b + " ");
+		}
+		System.out.println();
 		try {
 			code = rsa.crypt(message, keys.getPublic());
 		} catch (InvalidKeyException e) {
@@ -22,6 +28,10 @@ public class TestRSA {
 			code = "foobar".getBytes();
 		}
 		System.out.println("titkos üzenet:\n"+code);
+		for (byte b : code) {
+			System.out.print(b +" ");
+		}
+		System.out.println();
 		String decryptedMessage;
 		try {
 			decryptedMessage = rsa.decrypt(code, keys.getPrivate());
