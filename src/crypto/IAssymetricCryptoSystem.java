@@ -10,12 +10,13 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Queue;
 
 /**
  *
  * @author palkovics
  */
-public interface IAssymetricCryptoSystem {
+public interface IAssymetricCryptoSystem<T>{
 	/**
 	 * Generate a public and secret key, which contained in a KeyPair object
 	 * @param confidency when prime numbers involved, 
@@ -43,19 +44,20 @@ public interface IAssymetricCryptoSystem {
     
     /**
      * Encrypt a message. The function should encrypt arbitrary long message
+     * @param <T> The encoded blocks type
      * @param message clear text message
      * @param publicKey
-     * @return the encrypted message. An array of bytes
-     * @throws InvalidKeyException 
+     * @return the encrypted message. A Queue of encrypted blocks
+     * @throws InvalidKeyException encrypted
      */
-    public byte[] crypt(String message, PublicKey publicKey) throws InvalidKeyException;
+    public Queue<T> crypt(String message, PublicKey publicKey) throws InvalidKeyException;
     
     /**
      * Decrypt a message. The function should decrypt arbitrary long encrypted message
-     * @param code array of bytes, which is the encrypted message
+     * @param code Queue of <T> blocks, which is the encrypted message
      * @param secretKey
      * @return the decrypted message in clear text
      * @throws InvalidKeyException
      */
-    public String decrypt(byte[] code, PrivateKey secretKey) throws InvalidKeyException;
+    public String decrypt(Queue<T> code, PrivateKey secretKey) throws InvalidKeyException;
 }

@@ -11,8 +11,11 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.PrivateKey;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 /** RSA crypto system
@@ -20,7 +23,7 @@ import java.util.Random;
  *
  * @author palkovics
  */
-public class RSA implements IAssymetricCryptoSystem{
+public class RSA implements IAssymetricCryptoSystem<BigInteger>{
     private final int SIZE;	//size of primes in bits
     private int MOD_SIZE = 0;	//byte size of modulo ( n )
     
@@ -128,18 +131,21 @@ public class RSA implements IAssymetricCryptoSystem{
 	}
 	
 	@Override
-	public BigInteger encode(BigInteger num, PublicKey publicKey) throws InvalidKeyException{
+	public BigInteger encode(BigInteger num, PublicKey publicKey) throws InvalidKeyException, ArithmeticException{
 		if(!publicKey.getAlgorithm().equals("RSA"))
 		{
 			throw new InvalidKeyException("The provided 'publicKey' is not an RSA key");
 		}
 		//Casting publickey to RSA_PK
 		RSA_PK PK = (RSA_PK)publicKey;
+		if(num.compareTo(PK.getModulus())>=0 || num.compareTo(BigInteger.ZERO)<0) {
+			throw new ArithmeticException("Number to encode is out of range( [0,modulus[ )!");
+		}
 		return Algorithm.quickPow(num, PK.getPublicExponent(), PK.getModulus());
 		//return num.modPow(PK.getPublicExponent(), PK.getModulus());
 	}
 	
-	@Override
+	@Override 
 	public BigInteger decode(BigInteger code, PrivateKey secretKey) throws InvalidKeyException {
 		if(!secretKey.getAlgorithm().equals("RSA"))
 		{
@@ -151,58 +157,43 @@ public class RSA implements IAssymetricCryptoSystem{
 	}
 
 	@Override
-	public byte[] crypt(String message, PublicKey publicKey) throws InvalidKeyException {
-		LinkedList<byte[]> blocks = new LinkedList<byte[]>();
+	public Queue<BigInteger> crypt(String message, PublicKey publicKey) throws InvalidKeyException {
 		byte[] bytesOfMessage = message.getBytes(StandardCharsets.UTF_8);
-		
-		//If the message is short enough we must encode it once
-//		if(message.length()<MOD_SIZE-1) {
-//			BigInteger m = new BigInteger(bytesOfMessage);
-//			return encode(m,publicKey).toByteArray();
-//		}
-		
-		//Cut message to blocks which value less than the size of modulo
-		for(int i = 0; i<Math.ceil((double)message.length()/(MOD_SIZE-1));i++) {
+		Queue<BigInteger> blocks = new LinkedList<BigInteger>();
+		for(int i = 0; i<Math.ceil((double)bytesOfMessage.length/MOD_SIZE ) ; i++)
 			try {
-				blocks.add(Arrays.copyOfRange(bytesOfMessage, i*(MOD_SIZE-1), (i+1)*(MOD_SIZE-1)));
-			}catch (ArrayIndexOutOfBoundsException e) {
-				System.err.println("JAJJLACI");
+				BigInteger c = new BigInteger(1,Arrays.copyOfRange(bytesOfMessage, i*MOD_SIZE, (i+1)*MOD_SIZE));
+				blocks.add(encode(c, publicKey));
 			}
-			
-		}
-		byte[] code = new byte[blocks.toArray().length*(MOD_SIZE+1)];
-		int i = 0;
-		for (byte[] block : blocks) {
-			BigInteger m = new BigInteger(block);
-			block = encode(m, publicKey).toByteArray();
-			
-			for (byte b : block) {
-				code[i++] = b;
+			catch(ArrayIndexOutOfBoundsException e) {
+				System.err.println("Out of array in encoding process!");
 			}
-		}
-		return code;
+		
+		return blocks;
 	}
 
 	@Override
-	public String decrypt(byte[] code, PrivateKey secretKey) throws InvalidKeyException {
-		LinkedList<byte[]> blocks = new LinkedList<byte[]>();
-		
-		for(int i = 0; i<Math.ceil((double)code.length/MOD_SIZE-1); i++) {
-			blocks.push(Arrays.copyOfRange(code, i*(MOD_SIZE-1), (i+1)*(MOD_SIZE-1)));
-		}
-		String message = "";
-		System.err.println("visszafejtett üzenet:");
-		for (byte[] block : blocks) {
-			BigInteger c = new BigInteger(block);
-			block = decode(c, secretKey).toByteArray();
-			for (byte b : block) {
-				System.out.print(b + " ");
+	public String decrypt(Queue<BigInteger> code, PrivateKey secretKey) throws InvalidKeyException {
+		Queue<Byte> message = new LinkedList<Byte>();
+		byte[] bytes;
+		//decoding the blocks
+		for (BigInteger block : code) {
+			bytes = decode(block, secretKey).toByteArray();
+			
+			//boxing bytes to Byte type
+			for(byte b : bytes) {
+				if(b == 0) continue;	//
+				message.add(b);
 			}
 		}
-		System.out.println();
-//		System.err.println("blocks number=" +blocks.size());
-
-		return message;
+		byte[] tmp = new byte[message.size()];
+		int i = 0;
+		for(Byte b: message.toArray(new Byte[0])) {
+			tmp[i++] = b.byteValue();
+		}
+		
+		
+		return new String(tmp,StandardCharsets.UTF_8);
 	}
 	
 	

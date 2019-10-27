@@ -181,21 +181,21 @@ public class Algorithm {
         	s++;
         }
         //Első feltétel:  a^d = 1 mod n, akkor n prím
-        if(a.modPow(d, n).equals(BigInteger.ONE))
+        if(quickPow(a, d, n).equals(BigInteger.ONE))
         	return false;
         System.err.println("First test failed! - " +
-        	a.modPow(d, n));
+        	quickPow(a, d, n));
         //Második feltétel: van-e olyan r, hogy a^(2^r*d) = -1 mod n
         BigInteger exp = new BigInteger("2").multiply(d);
         BigInteger tmp;
         for(r = 1; r<s; r++){
-        	tmp = a.modPow(exp, n);
+        	tmp = quickPow(a, exp, n);
         	if(tmp.equals(BigInteger.ONE.negate()) ||
         		tmp.equals(n.subtract(BigInteger.ONE))){
         		return false;
         	};
         	System.err.println("Second test failed! - " +
-            		a.modPow(exp, n));
+            		quickPow(a, exp, n));
         	exp = exp.multiply(BigInteger.valueOf(2));
         }
         return true;
