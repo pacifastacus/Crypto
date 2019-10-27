@@ -3,8 +3,12 @@ package crypto;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
 
+/**
+ * 
+ * @author Palkovics Dénes
+ *
+ */
 public class TestRSAOnNumbers {
 
 	public static void main(String[] args) throws InvalidKeyException {

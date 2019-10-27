@@ -9,7 +9,7 @@ import java.math.BigInteger;
 
 /**
  *
- * @author hallgato
+ * @author Palkovics Dénes
  */
 public class TestEA {
     public static void main(String[] args) {

@@ -1,22 +1,16 @@
 package crypto;
 
 import java.math.BigInteger;
-import java.security.interfaces.RSAPublicKey;
 
-class RSA_PK extends RSAKey implements RSAPublicKey {
+/**
+ * RSA Public key
+ * @author palkovics
+ *
+ */
+final class RSA_PK extends RSAKey implements PublicKey{
+
 
 	public RSA_PK(BigInteger mod, BigInteger exp) {
 		super(mod, exp);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -156275816726906066L;
-
-	@Override
-	public BigInteger getPublicExponent() {
-		return this.exponent;
 	}
 }

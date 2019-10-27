@@ -3,10 +3,14 @@ package crypto;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * 
+ * @author Palkovics Dénes
+ *
+ */
 public class TestRSA {
 	
 	public static void main(String[] args) {

@@ -7,16 +7,14 @@ package crypto;
 
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.Queue;
 
 /**
  *
  * @author palkovics
  */
-public interface IAssymetricCryptoSystem<T>{
+interface IAssymetricCryptoSystem<T>{
+	
 	/**
 	 * Generate a public and secret key, which contained in a KeyPair object
 	 * @param confidency when prime numbers involved, 
@@ -29,7 +27,7 @@ public interface IAssymetricCryptoSystem<T>{
      * @param num the number to encode
      * @param publicKey
      * @return the encoded number
-     * @throws InvalidKeyException if wrong type of key used 
+     * @throws InvalidKeyException thrown if wrong key type used 
      */
     public BigInteger encode(BigInteger num, PublicKey publicKey) throws InvalidKeyException;
     
@@ -38,7 +36,7 @@ public interface IAssymetricCryptoSystem<T>{
      * @param code the encrypted number
      * @param secretKey
      * @return the decrypted number
-     * @throws InvalidKeyException if wrong type of key used
+     * @throws InvalidKeyException thrown if wrong key type used
      */
     public BigInteger decode(BigInteger code, PrivateKey secretKey) throws InvalidKeyException;
     
@@ -48,7 +46,7 @@ public interface IAssymetricCryptoSystem<T>{
      * @param message clear text message
      * @param publicKey
      * @return the encrypted message. A Queue of encrypted blocks
-     * @throws InvalidKeyException encrypted
+     * @throws InvalidKeyException thrown if wrong key type used
      */
     public Queue<T> crypt(String message, PublicKey publicKey) throws InvalidKeyException;
     
@@ -57,7 +55,7 @@ public interface IAssymetricCryptoSystem<T>{
      * @param code Queue of <T> blocks, which is the encrypted message
      * @param secretKey
      * @return the decrypted message in clear text
-     * @throws InvalidKeyException
+     * @throws InvalidKeyException thrown if wrong key type used
      */
     public String decrypt(Queue<T> code, PrivateKey secretKey) throws InvalidKeyException;
 }

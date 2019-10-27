@@ -1,47 +1,52 @@
 package crypto;
 
 import java.math.BigInteger;
-import java.security.spec.AlgorithmParameterSpec;
 
-class RSAKey implements java.security.Key, java.security.interfaces.RSAKey{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7256926749067436228L;
+/**
+ * 
+ * @author Palkovics Dénes
+ *
+ */
+abstract class RSAKey implements Key{
+
 	protected final BigInteger modulus;
 	protected final BigInteger exponent;
 	
+	/**
+	 * Generate a key so that it used in modular exponentioation like c = m^exp (mod)
+	 * 
+	 * @param mod - modulus of the key. It is a multiplication of two primes (n = p*q)
+	 * @param exp - epxonent of the key (
+	 */
 	public RSAKey(BigInteger mod, BigInteger exp) {
 		this.modulus = mod;
 		this.exponent = exp; 
 	}
-
+	
+	/**
+	 * retrieve the modulus of the key
+	 * @return modulus
+	 */
 	public BigInteger getModulus() {
 		return modulus;
 	}
+	
+	/**
+	 * Retrieve the exponent of the key
+	 * @return exponent
+	 */
+	public BigInteger getExponent() {
+		return exponent;
+	}
+	
 
 	@Override
 	public String getAlgorithm() {
 		return "RSA";
 	}
-
-	@Override
-	public String getFormat() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public byte[] getEncoded() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
-	@Override
-	public AlgorithmParameterSpec  getParams() {
-		return null;
-	}
 
+	@Override
 	public String toString() {
 		return "[mod="+modulus+", exp="+exponent+"]";
 	}

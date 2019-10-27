@@ -3,6 +3,11 @@ package crypto;
 import java.math.BigInteger;
 import java.util.Random;
 
+/**
+ * 
+ * @author Palkovics Dénes
+ *
+ */
 final class TestQuickPow {
 
 	public static void main(String[] args) {

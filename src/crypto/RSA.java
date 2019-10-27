@@ -8,20 +8,16 @@ package crypto;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.PrivateKey;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 
-/** RSA crypto system
- * Implements the RSA cryptosystem
+/** 
+ * RSA crypto system
+ * Implements the RSA crypto system
  *
- * @author palkovics
+ * @author Palkovics Dénes
  */
 public class RSA implements IAssymetricCryptoSystem<BigInteger>{
     private final int SIZE;	//size of primes in bits
@@ -84,7 +80,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
         }
         System.err.println("decryptor exponent calculated!");
         
-        return new KeyPair(new RSA_PK(n,e), new RSA_SK(p,q,d));
+        return new KeyPair((PublicKey)new RSA_PK(n,e), (PrivateKey)new RSA_SK(p,q,d));
 	}
 	
 	public int getModSize() {
@@ -112,7 +108,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
         	e = new BigInteger(SIZE, new Random());
         	//if e is even subtract one from it (optimization)
         	e.clearBit(0);
-        }while(!Algorithm.euclid(e, phy).equals(BigInteger.ONE) || e.equals(pk.getPublicExponent()));
+        }while(!Algorithm.euclid(e, phy).equals(BigInteger.ONE) || e.equals(pk.getExponent()));
         System.err.println("encryptor exponent found!");
         
         //calculate d
@@ -126,8 +122,8 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
         }
         System.err.println("decryptor exponent calculated!");
         
-        return new KeyPair(new RSA_PK(primes[0].multiply(primes[1]),e), 
-        		new RSA_SK(primes[0],primes[1],d));
+        return new KeyPair((PublicKey)new RSA_PK(primes[0].multiply(primes[1]),e), 
+        		(PrivateKey)new RSA_SK(primes[0],primes[1],d));
 	}
 	
 	@Override
@@ -141,7 +137,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 		if(num.compareTo(PK.getModulus())>=0 || num.compareTo(BigInteger.ZERO)<0) {
 			throw new ArithmeticException("Number to encode is out of range( [0,modulus[ )!");
 		}
-		return Algorithm.quickPow(num, PK.getPublicExponent(), PK.getModulus());
+		return Algorithm.quickPow(num, PK.getExponent(), PK.getModulus());
 		//return num.modPow(PK.getPublicExponent(), PK.getModulus());
 	}
 	
@@ -152,7 +148,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 			throw new InvalidKeyException("The provided 'secretKey' is not an RSA key");
 		}
 		RSA_SK SK = (RSA_SK)secretKey;
-		return Algorithm.quickPow(code, SK.getPrivateExponent(), SK.getModulus());
+		return Algorithm.quickPow(code, SK.getExponent(), SK.getModulus());
 		//return code.modPow(SK.getPrivateExponent(), SK.getModulus());
 	}
 
@@ -194,23 +190,5 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 		
 		
 		return new String(tmp,StandardCharsets.UTF_8);
-	}
-	
-	
-	public static LinkedList<byte[]> cuttingMessage(String message, int size){
-//		int numberOfBlocks = (int)Math.ceil((double)message.getBytes().length/size);
-//		byte[][] retVal = new byte[size][numberOfBlocks];
-		LinkedList<byte[]> retVal = new LinkedList<byte[]>();
-		byte[] m = message.getBytes();
-		
-		for(int i = 0; i<size; i++){
-			try {
-				retVal.push(Arrays.copyOfRange(m, i*size, (i+1)*size));
-			}catch (ArrayIndexOutOfBoundsException e) {
-				System.err.println("JAJJLACI");
-			}
-		}
-		
-		return retVal;
 	}
 }
