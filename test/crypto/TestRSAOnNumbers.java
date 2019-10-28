@@ -12,8 +12,8 @@ import java.security.InvalidKeyException;
 public class TestRSAOnNumbers {
 
 	public static void main(String[] args) throws InvalidKeyException {
-		RSA rsa = new RSA(64);
-		KeyPair keys = rsa.keyGen(3);
+		RSA rsa = new RSA();
+		KeyPair keys = rsa.keyGen(3,64);
 		RSA_PK pk = (RSA_PK)keys.getPublic();
 		RSA_SK sk = (RSA_SK)keys.getPrivate();
 		
@@ -23,7 +23,7 @@ public class TestRSAOnNumbers {
 		BigInteger c;
 		System.out.println("Nyílvános kulcs"+ pk);
 		System.out.println("titkos kulcs"+ sk);
-		System.out.println("Modulus mérete:" + rsa.getModSize());
+		System.out.println("Modulus mérete:" + pk.getModulus().bitLength());
 		//Kódolás
 		c = rsa.encode(m, keys.getPublic());
 		System.out.println("m ="+m +" ->" + new String(m.toByteArray()) + " " + m.bitLength() +

@@ -1,5 +1,6 @@
 package crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -7,7 +8,11 @@ import java.math.BigInteger;
  * @author Palkovics Dénes
  *
  */
-final class RSA_SK extends RSAKey implements PrivateKey{
+final class RSA_SK extends RSAKey implements PrivateKey, Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4202698738488598476L;
 	private final BigInteger p;
 	private final BigInteger q;
 	

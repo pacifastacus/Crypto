@@ -20,30 +20,29 @@ import java.util.Random;
  * @author Palkovics Dénes
  */
 public class RSA implements IAssymetricCryptoSystem<BigInteger>{
-    private final int SIZE;	//size of primes in bits
-    private int MOD_SIZE = 0;	//byte size of modulo ( n )
     
-    public RSA(int size) {
-    	this.SIZE = size;
-    }
     /**
      * Generate a prime number, which primarilty tested with Algorithm.isPrime()
      * @param confidency
      * @return a propably prime number
      */
-	private BigInteger prime(int confidency) {
+	private BigInteger prime(int confidency, int size) {
     	BigInteger p;
     	System.err.print("Searching prime");
     	do{
-            p = new BigInteger(SIZE, new Random());
-            p = p.setBit(0).setBit(SIZE);
+            p = new BigInteger(size, new Random());
+            p = p.setBit(0).setBit(size);
             System.err.print(".");
         }while(!Algorithm.isPrime(p,confidency));
     	System.err.println("DONE");
     	return p;
 	}
+	
+	/**
+	 * @param size the bit size of the prime numbres
+	 */
 	@Override
-	public KeyPair keyGen(int confidency) {
+	public KeyPair keyGen(int confidency, int size) {
 		BigInteger p,
 				   q,
 				   n,
@@ -51,10 +50,9 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 				   d,
 				   phyN;
 		//Choose p, q big primes and n=p*q
-        p = prime(confidency);
-        q = prime(confidency);
+        p = prime(confidency, size);
+        q = prime(confidency, size);
         n = p.multiply(q);
-        MOD_SIZE = n.bitLength()/8;
         System.err.println("primes found!");
         //Calculate Euler's phy function phy(n)=(p-1)*(q-1)
         //Because of p and q odds, we can subtract 1 from them by resetting the last bit
@@ -63,7 +61,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
         //Choose e: 3<e<phy(n) and gcd(e,phy(n))=1
         //Because gcd(e,phy(n)=1 and phy(n) an even number, e must be odd 
         do {
-        	e = new BigInteger(SIZE, new Random());
+        	e = new BigInteger(size, new Random());
         	//if e is even subtract one from it (optimization)
         	e.clearBit(0);
         }while(!Algorithm.euclid(e, phyN).equals(BigInteger.ONE));
@@ -81,10 +79,6 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
         System.err.println("decryptor exponent calculated!");
         
         return new KeyPair((PublicKey)new RSA_PK(n,e), (PrivateKey)new RSA_SK(p,q,d));
-	}
-	
-	public int getModSize() {
-		return MOD_SIZE;
 	}
 	
 	/**
@@ -105,7 +99,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 		//Choose e: 3<e<phy(n) and gcd(e,phy(n))=1
         //Because gcd(e,phy(n)=1 and phy(n) an even number, e must be odd 
         do {
-        	e = new BigInteger(SIZE, new Random());
+        	e = new BigInteger(sk.getPrimes()[0].bitLength(), new Random());
         	//if e is even subtract one from it (optimization)
         	e.clearBit(0);
         }while(!Algorithm.euclid(e, phy).equals(BigInteger.ONE) || e.equals(pk.getExponent()));
@@ -153,18 +147,22 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 	}
 
 	@Override
-	public Queue<BigInteger> crypt(String message, PublicKey publicKey) throws InvalidKeyException {
+	public Queue<BigInteger> encrypt(String message, PublicKey publicKey) throws InvalidKeyException {
+		RSA_PK pk = (RSA_PK)publicKey;	//Has to cast the key into RSA_PK to get the modulus size
+		int mod_size = pk.getModulus().bitLength()/8;	//Size of the modulus in bytes
+		//Get the bytes of the message then cut it into
 		byte[] bytesOfMessage = message.getBytes(StandardCharsets.UTF_8);
 		Queue<BigInteger> blocks = new LinkedList<BigInteger>();
-		for(int i = 0; i<Math.ceil((double)bytesOfMessage.length/MOD_SIZE ) ; i++)
+		//Make a Queue of encoded message blocks. the number bytes in one block is equal to the modulus size 
+		for(int i = 0; i<Math.ceil((double)bytesOfMessage.length/mod_size ) ; i++)
 			try {
-				BigInteger c = new BigInteger(1,Arrays.copyOfRange(bytesOfMessage, i*MOD_SIZE, (i+1)*MOD_SIZE));
+				BigInteger c = new BigInteger(1,Arrays.copyOfRange(bytesOfMessage, i*mod_size, (i+1)*mod_size));
 				blocks.add(encode(c, publicKey));
 			}
+			//Arrays.copyOfRange should throw an exception, but we can go with it (the last block will have a lot of zeros in the end) 
 			catch(ArrayIndexOutOfBoundsException e) {
 				System.err.println("Out of array in encoding process!");
 			}
-		
 		return blocks;
 	}
 

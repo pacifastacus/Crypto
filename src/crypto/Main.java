@@ -11,13 +11,13 @@ import java.util.Queue;
  */
 public class Main {
 	public static void main(String[] args) {
-		RSA rsa = new RSA(Integer.parseInt(args[0]));
-		KeyPair keys = rsa.keyGen(3); 
+		RSA rsa = new RSA();
+		KeyPair keys = rsa.keyGen(3, Integer.parseInt(args[0])); 
 		String message = args[1];
 		Queue<BigInteger> code;
 		System.out.println("\nüzenet:\n"+message);
 		try {
-			code = rsa.crypt(message, keys.getPublic());
+			code = rsa.encrypt(message, keys.getPublic());
 		} catch (InvalidKeyException e) {
 			System.err.println("keys.getPublic did not provided RSA key!");
 			e.printStackTrace();

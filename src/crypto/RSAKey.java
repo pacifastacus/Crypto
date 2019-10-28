@@ -1,5 +1,6 @@
 package crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
@@ -7,8 +8,12 @@ import java.math.BigInteger;
  * @author Palkovics Dénes
  *
  */
-abstract class RSAKey implements Key{
+abstract class RSAKey implements Key, Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3701611899032162123L;
 	protected final BigInteger modulus;
 	protected final BigInteger exponent;
 	
