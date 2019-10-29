@@ -1,5 +1,9 @@
 package crypto;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.util.Queue;
@@ -10,20 +14,49 @@ import java.util.Queue;
  *
  */
 public class Main {
-	public static void main(String[] args) {
-		RSA rsa = new RSA(Integer.parseInt(args[0]));
-		KeyPair keys = rsa.keyGen(3); 
-		String message = args[1];
-		Queue<BigInteger> code;
-		System.out.println("\nüzenet:\n"+message);
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int size = 64;
+		System.out.format("RSA kulcsok mérete:");
 		try {
-			code = rsa.crypt(message, keys.getPublic());
+			size = Integer.parseInt(br.readLine());
+			
+		}catch (NumberFormatException e) {
+			System.err.println("Nem szám! "+ e);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		RSA rsa = new RSA(size);
+		KeyPair keys = rsa.keyGen(3); 
+		String file;
+		System.out.format("adja meg az text fájlt:");
+		if((file = br.readLine()) == null)
+			return;
+		
+		BufferedReader fr = new BufferedReader(new FileReader(file));
+		StringBuilder strb = new StringBuilder();
+		String line;
+		while((line = fr.readLine())!=null) {
+			strb.append(line).append("\n");
+		}
+		
+		Queue<BigInteger> code;
+		System.out.println("\nüzenet-----------------------------------\n"
+				+strb.toString());
+		try {
+			code = rsa.crypt(strb.toString(), keys.getPublic());
 		} catch (InvalidKeyException e) {
 			System.err.println("keys.getPublic did not provided RSA key!");
 			e.printStackTrace();
 			return;
 		}
-		System.out.println("\ntitkos üzenet:\n"+code);
+		System.out.println("\ntitkos üzenet-----------------------------\n");
+		for (BigInteger e : code) {
+			System.out.println(e);
+		}
+		System.out.println();
 		String decryptedMessage;
 		try {
 			decryptedMessage = rsa.decrypt(code, keys.getPrivate());
@@ -34,6 +67,7 @@ public class Main {
 		}
 		
 		
-		System.out.println("\nVisszafejtett üzenet:\n"+decryptedMessage);
+		System.out.println("\nVisszafejtett üzenet-----------------------\n"
+				+decryptedMessage);
 	}
 }
