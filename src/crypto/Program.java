@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
@@ -29,10 +30,11 @@ public final class Program {
 	private static final String CMD_BACK= "back";
 	private RSA rsa;
 	private RSAKey key;
-	private Console console;
+	private BufferedReader input;
 	
 	public Program() {
-		this.console = System.console();
+		this.input = new BufferedReader(
+				new InputStreamReader(System.in));
 		this.rsa = new RSA();
 	}
 	
@@ -57,8 +59,8 @@ public final class Program {
 			ObjectOutputStream out_pk = new ObjectOutputStream(new FileOutputStream("RSA_PK.key"))
 		) {
 			try {
-				int read = Integer.parseInt(
-						console.readLine("Adja meg a generáladnó kulcsok méretét bitben (%d):", size));
+				System.out.format("Adja meg a generáladnó kulcsok méretét bitben (%d):", size);
+				int read = Integer.parseInt(input.readLine());
 				if(read >= 0) size=read;
 			} catch (NumberFormatException e) {	}
 			System.out.println("size=" + size);
@@ -94,9 +96,10 @@ public final class Program {
 	}
 	
 	/**
+	 * @throws IOException 
 	 * 
 	 */
-	private void encMode() {
+	private void encMode() throws IOException {
 		System.out.println("-------Titkosító üzemmód-------\n");
 		String cmd;
 		EncLoop:
@@ -105,15 +108,18 @@ public final class Program {
 					+ CMD_LOAD+ " - kulcs betöltése fájlból\n"
 					+ CMD_ENC + " - Szöveges fájl titkosítása\n"
 					+ CMD_BACK+" - visszalépés\n");
-			cmd = console.readLine(">");
-			if(cmd == null) {
-				return;
-			}
+			System.out.format("(Enc)>");
+			if((cmd = input.readLine()) == null)
+				break;
 			switch(cmd) {
 			case CMD_LOAD:
 				String keyfname = "RSA_PK.key"; 
-				String read = console.readLine("Adja meg a publikus kulcs fájlnevét (%s):",keyfname);
-				if(!read.isBlank()) keyfname = read;
+				//cmd = console.readLine("Adja meg a publikus kulcs fájlnevét (%s):",keyfname);
+				System.out.format("Adja meg a publikus kulcs fájlnevét (%s):",keyfname);
+				if((cmd = input.readLine()) == null)
+					break;
+				if(!cmd.isBlank()) 
+					keyfname = cmd;
 				loadKey(keyfname);
 				break;
 			case CMD_ENC:
@@ -126,8 +132,11 @@ public final class Program {
 					System.out.println("A betöltött kulcs nem RSA nyílvános kulcs");
 					break;
 				}
+				String textfname;
+				System.out.format("Adja meg a titkosítandó szöveges fájlt:");
+				if((textfname = input.readLine()) == null)
+					break;
 				
-				String textfname = console.readLine("Adja meg a titkosítandó szöveges fájlt:");
 				try(BufferedReader infile =
 						new BufferedReader(new FileReader(textfname));
 					ObjectOutputStream outfile = 
@@ -154,7 +163,8 @@ public final class Program {
 		}
 	}
 		
-	private void decMode() {
+	private void decMode() throws IOException {
+		String cmd;
 		System.out.println("-------Visszafejtő üzemmód-------\n");
 		DecLoop:
 		while(true) {
@@ -162,11 +172,16 @@ public final class Program {
 					+ CMD_LOAD+ " - kulcs betöltése fájlból\n"
 					+ CMD_DEC + " - titkosított fájl visszafejtése\n"
 					+ CMD_BACK +" - visszalépés\n");
-			switch(console.readLine()) {
+			System.out.print("(Dec)>");
+			if((cmd = input.readLine()) == null)
+				break;
+			switch(input.readLine()) {
 			case CMD_LOAD:
 				String keyfname = "RSA_SK.key"; 
-				String read = console.readLine("Adja meg a titkos kulcs fájlnevét (%s):",keyfname);
-				if(!read.isBlank()) keyfname = read;
+				System.out.format("Adja meg a titkos kulcs fájlnevét (%s):",keyfname);
+				if((cmd = input.readLine()) == null)
+					break;
+				if(!cmd.isBlank()) keyfname = cmd;
 				loadKey(keyfname);
 				break;
 			case CMD_DEC:
@@ -180,7 +195,11 @@ public final class Program {
 					break;
 				}
 				
-				String codefname = console.readLine("Adja meg a titkosítandó szöveges fájlt:");
+				//String codefname = console.readLine("Adja meg a titkosítandó szöveges fájlt:");
+				System.out.print("Adja meg a titkosítandó szöveges fájlt:");
+				String codefname = input.readLine();
+				if(codefname == null)
+					break;
 				try(BufferedWriter outfile =
 						new BufferedWriter(new FileWriter(codefname.split("\\.")[0] + ".txt"));
 					ObjectInputStream infile = 
@@ -211,23 +230,23 @@ public final class Program {
 	/**
 	 * Runs the main application
 	 * @param args - the commandline arguments not yet implemented
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		Program prg = new Program();
 		prg.printGreeting();
 		String cmd;
 		MainLoop:
-		while(true) {
+		while(true){
 			System.out.println("A továbblépéshez gépelje be az alábbiak valamelyikét:\n\n"
 					+ CMD_GEN +" - Új kulcspár generálása. Létrehoz egy 'PK.key' és 'SK.key' kulcspárt\n"
 					+ CMD_ENC +" - titkosító üzemmód.\n"
 					+ CMD_DEC +" - visszafejtő üzemmód\n"
 					+ CMD_QUIT+" - kilépés a programból\n");
-			
-			cmd = prg.console.readLine(">");
-			if(cmd == null) {
-				return;
-			}
+			System.out.print(">");
+			cmd = prg.input.readLine();
+			if(cmd == null)
+				break;
 			switch (cmd) {
 			case CMD_GEN:	prg.generateKeys(); break; 
 			case CMD_ENC:	prg.encMode(); break;
@@ -236,7 +255,7 @@ public final class Program {
 			default: System.out.println("Ismeretlen utasítás!"); continue MainLoop;
 			}
 		}
-		
+		System.out.println("Kilépés!");
 	}
 
 }
