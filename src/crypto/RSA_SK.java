@@ -8,16 +8,11 @@ import java.math.BigInteger;
  * @author Palkovics Dénes
  *
  */
-<<<<<<< HEAD
 final class RSA_SK extends RSAKey implements PrivateKey, Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4202698738488598476L;
-	private final BigInteger p;
-	private final BigInteger q;
-=======
-final class RSA_SK extends RSAKey implements PrivateKey{
 	/**
 	 * p and q prime numbers which the two common divisor of the modulus
 	 */
@@ -26,7 +21,6 @@ final class RSA_SK extends RSAKey implements PrivateKey{
 	 * two multipliers used for accelerate the modular exponentiation in decoding
 	 */
 	private final BigInteger[] c;	// c=[cp, cq]
->>>>>>> refs/heads/master
 	
 	/**
 	 * 

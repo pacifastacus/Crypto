@@ -20,10 +20,6 @@ import java.util.Random;
  * @author Palkovics Dénes
  */
 public class RSA implements IAssymetricCryptoSystem<BigInteger>{
-<<<<<<< HEAD
-    
-=======
->>>>>>> refs/heads/master
     /**
      * Generate a prime number, which primarilty tested with Algorithm.isPrime()
      * @param confidency
