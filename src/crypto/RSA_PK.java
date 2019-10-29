@@ -8,7 +8,7 @@ import java.math.BigInteger;
  * @author palkovics
  *
  */
-final class RSA_PK extends RSAKey implements PublicKey, Serializable{
+public final class RSA_PK extends RSAKey implements PublicKey, Serializable{
 
 	/**
 	 * 

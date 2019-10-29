@@ -8,7 +8,7 @@ import java.math.BigInteger;
  * @author Palkovics Dénes
  *
  */
-abstract class RSAKey implements Key, Serializable{
+public abstract class RSAKey implements Key, Serializable{
 
 	/**
 	 * 

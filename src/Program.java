@@ -1,5 +1,3 @@
-package crypto;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Console;
@@ -16,6 +14,7 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.util.Queue;
 
+import crypto.*;
 /**
  * A basic text encryptor application
  * @author palkovics
