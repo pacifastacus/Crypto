@@ -5,7 +5,7 @@ package crypto;
  * @author Palkovics Dénes
  *
  */
-class KeyPair {
+public class KeyPair {
 	private PrivateKey privateKey;
     private PublicKey publicKey;
     

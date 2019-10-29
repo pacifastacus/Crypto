@@ -26,7 +26,7 @@ public class TestRSAOnNumbers {
 		System.out.println("Modulus mérete:" + pk.getModulus().bitLength());
 		//Kódolás
 		c = rsa.encode(m, keys.getPublic());
-		System.out.println("m ="+m +" ->" + new String(m.toByteArray()) + " " + m.bitLength() +
+		System.out.println("m ="+m +" ->" + new String(m.toByteArray()) + " " + m.bitLength()/8 +
 				"\nc ="+c +" ->" + " " + c.bitLength()/8);
 		
 		//Dekódolás

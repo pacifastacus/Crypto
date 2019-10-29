@@ -20,7 +20,10 @@ import java.util.Random;
  * @author Palkovics Dénes
  */
 public class RSA implements IAssymetricCryptoSystem<BigInteger>{
+<<<<<<< HEAD
     
+=======
+>>>>>>> refs/heads/master
     /**
      * Generate a prime number, which primarilty tested with Algorithm.isPrime()
      * @param confidency
@@ -142,6 +145,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 			throw new InvalidKeyException("The provided 'secretKey' is not an RSA key");
 		}
 		RSA_SK SK = (RSA_SK)secretKey;
+		//return Algorithm.crt(code, SK.getExponent(), SK.getPrimes(), SK.getCrtMultipliers());
 		return Algorithm.quickPow(code, SK.getExponent(), SK.getModulus());
 		//return code.modPow(SK.getPrivateExponent(), SK.getModulus());
 	}
