@@ -205,4 +205,19 @@ public class Algorithm {
         }
         return true;
     }
+	
+	static BigInteger[] preCrt(BigInteger p, BigInteger q) {
+		BigInteger[] c = new BigInteger[4];
+		BigInteger[] eea = extEuclid(p, q);
+		c[0] = p.multiply(eea[1]);
+		c[1] = q.multiply(eea[2]);
+		return c;
+	}
+	
+	static BigInteger crt(BigInteger x, BigInteger e, BigInteger[] p, BigInteger[] c) {
+		BigInteger xp, xq;
+		xp = quickPow(x, e, p[0]);
+		xq = quickPow(x, e, p[1]);
+		return xp.multiply(c[0]).add(xq.multiply(c[1]));
+	}
 }

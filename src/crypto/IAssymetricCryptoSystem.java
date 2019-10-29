@@ -17,10 +17,11 @@ interface IAssymetricCryptoSystem<T>{
 	
 	/**
 	 * Generate a public and secret key, which contained in a KeyPair object
-	 * @param confidency when prime numbers involved, 
+	 * @param confidency when prime numbers involved. The higher number means greater propability that the primes are actually primes
+	 * @param size  the size of the key (dependes on the key type)
 	 * @return a KeyPair object which holds the public and the secret key
 	 */
-    public KeyPair keyGen(int confidency);
+    public KeyPair keyGen(int confidency, int size);
     
     /**
      * Elementary encoding function used on a number type message
@@ -48,7 +49,7 @@ interface IAssymetricCryptoSystem<T>{
      * @return the encrypted message. A Queue of encrypted blocks
      * @throws InvalidKeyException thrown if wrong key type used
      */
-    public Queue<T> crypt(String message, PublicKey publicKey) throws InvalidKeyException;
+    public Queue<T> encrypt(String message, PublicKey publicKey) throws InvalidKeyException;
     
     /**
      * Decrypt a message. The function should decrypt arbitrary long encrypted message

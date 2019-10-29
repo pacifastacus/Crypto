@@ -10,7 +10,7 @@ import java.math.BigInteger;
 final class RSA_PK extends RSAKey implements PublicKey{
 
 
-	public RSA_PK(BigInteger mod, BigInteger exp) {
-		super(mod, exp);
+	public RSA_PK(BigInteger mod, BigInteger e) {
+		super(mod, e);
 	}
 }
