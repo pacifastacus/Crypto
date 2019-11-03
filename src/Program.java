@@ -92,6 +92,7 @@ public final class Program {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("Kulcs betöltve!");
 	}
 	
 	/**
