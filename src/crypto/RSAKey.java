@@ -7,7 +7,7 @@ import java.math.BigInteger;
  * @author Palkovics Dénes
  *
  */
-abstract class RSAKey implements Key{
+public abstract class RSAKey implements Key{
 
 	protected final BigInteger modulus;
 	protected final BigInteger exponent;

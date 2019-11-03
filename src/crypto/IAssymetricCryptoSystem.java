@@ -13,7 +13,7 @@ import java.util.Queue;
  *
  * @author palkovics
  */
-interface IAssymetricCryptoSystem<T>{
+public interface IAssymetricCryptoSystem<T>{
 	
 	/**
 	 * Generate a public and secret key, which contained in a KeyPair object

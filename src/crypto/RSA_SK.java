@@ -7,7 +7,7 @@ import java.math.BigInteger;
  * @author Palkovics Dénes
  *
  */
-final class RSA_SK extends RSAKey implements PrivateKey{
+public final class RSA_SK extends RSAKey implements PrivateKey{
 	/**
 	 * p and q prime numbers which the two common divisor of the modulus
 	 */

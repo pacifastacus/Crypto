@@ -5,6 +5,6 @@ package crypto;
  * @author Palkovics Dénes
  *
  */
-interface PrivateKey extends Key{
+public interface PrivateKey extends Key{
 
 }
