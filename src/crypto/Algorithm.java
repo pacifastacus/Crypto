@@ -207,7 +207,7 @@ public class Algorithm {
     }
 	
 	static BigInteger[] preCrt(BigInteger p, BigInteger q) {
-		BigInteger[] c = new BigInteger[4];
+		BigInteger[] c = new BigInteger[2];
 		BigInteger[] eea = extEuclid(p, q);
 		c[0] = p.multiply(eea[1]);
 		c[1] = q.multiply(eea[2]);
@@ -218,6 +218,6 @@ public class Algorithm {
 		BigInteger xp, xq;
 		xp = quickPow(x, e, p[0]);
 		xq = quickPow(x, e, p[1]);
-		return xp.multiply(c[0]).add(xq.multiply(c[1]));
+		return xq.multiply(c[0]).add(xp.multiply(c[1]));
 	}
 }

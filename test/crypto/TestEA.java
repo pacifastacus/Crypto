@@ -13,8 +13,8 @@ import java.math.BigInteger;
  */
 public class TestEA {
     public static void main(String[] args) {
-        BigInteger a = new BigInteger("280");
-        BigInteger b = new BigInteger("32");
+        BigInteger a = new BigInteger("3");
+        BigInteger b = new BigInteger("220");
         BigInteger ea = Algorithm.euclid(a, b);
         System.err.println("EA finished");
         BigInteger[] eea = Algorithm.extEuclid(a, b);
