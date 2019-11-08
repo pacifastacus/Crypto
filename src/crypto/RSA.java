@@ -77,7 +77,7 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
 	}
 	
 	/**
-	 * Key generation resuing p and q primes which contained by sk. This means that only the exponent of the key changed
+	 * Key generation reusing p and q primes which contained by sk. This means that only the exponent of the key changed
 	 * @param keys private key
 	 * @return a new keypair
 	 */

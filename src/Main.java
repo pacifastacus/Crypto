@@ -70,7 +70,7 @@ public class Main {
 			System.out.println("\nVisszafejtett üzenet-----------------------\n"
 					+decryptedMessage);
 			System.out.print("\nAkar új fájlt titkosítani? ");
-			if(br.readLine() != "igen")
+			if(!br.readLine().equals("igen"))
 				break;				
 		}
 	}

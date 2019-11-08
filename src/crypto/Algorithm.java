@@ -100,7 +100,7 @@ public class Algorithm {
         dxy[2] = counter ? y[0] : y[0].negate();
         return dxy;
     }
-    
+        
 	/**
      * Test is num is a prime, using the Miller-Rabin test.
      * @param num is the tested number
@@ -164,48 +164,6 @@ public class Algorithm {
 		return true;
 	}
 	
-	/**
-	 * The Miller-Rabin compositeness test
-	 * @param n is the tested number
-	 * @param witness is the witness for the compositeness of n (can't be higher than n)
-	 * @return true if n is surely a composite, else n is MAYBE prime
-	 */
-	static boolean millerRabin(BigInteger n, int witness){
-        BigInteger a = BigInteger.valueOf(witness);
-        BigInteger d = n.subtract(BigInteger.ONE);
-        long s = 0;
-        long r = 1;
-        //make sure w is positive and odd
-        witness = Math.abs(witness);
-        if(witness % 2 == 0)
-			witness++;
-        
-        //Bontsuk fel n-1-t a^s és d szorzataira
-        while(d.mod(a).equals(BigInteger.ZERO)) {
-        	d = d.divide(a);
-        	s++;
-        }
-        //Első feltétel:  a^d = 1 mod n, akkor n prím
-        if(quickPow(a, d, n).equals(BigInteger.ONE))
-        	return false;
-        System.err.println("First test failed! - " +
-        	quickPow(a, d, n));
-        //Második feltétel: van-e olyan r, hogy a^(2^r*d) = -1 mod n
-        BigInteger exp = new BigInteger("2").multiply(d);
-        BigInteger tmp;
-        for(r = 1; r<s; r++){
-        	tmp = quickPow(a, exp, n);
-        	if(tmp.equals(BigInteger.ONE.negate()) ||
-        		tmp.equals(n.subtract(BigInteger.ONE))){
-        		return false;
-        	};
-        	System.err.println("Second test failed! - " +
-            		quickPow(a, exp, n));
-        	exp = exp.multiply(BigInteger.valueOf(2));
-        }
-        return true;
-    }
-	
 	static BigInteger[] preCrt(BigInteger p, BigInteger q) {
 		BigInteger[] c = new BigInteger[2];
 		BigInteger[] eea = extEuclid(p, q);
@@ -214,10 +172,14 @@ public class Algorithm {
 		return c;
 	}
 	
-	static BigInteger crt(BigInteger x, BigInteger e, BigInteger[] p, BigInteger[] c) {
+	static BigInteger crt(BigInteger x, BigInteger e, BigInteger[] primes, BigInteger[] c) {
 		BigInteger xp, xq;
-		xp = quickPow(x, e, p[0]);
-		xq = quickPow(x, e, p[1]);
-		return xq.multiply(c[0]).add(xp.multiply(c[1]));
+		//xp = quickPow(x, e, primes[0]);
+		xp = x.modPow(e.mod(primes[0].subtract(BigInteger.ONE)), primes[0]);
+		//xq = quickPow(x, e, primes[1]);
+		xq = x.modPow(e.mod(primes[1].subtract(BigInteger.ONE)), primes[1]);
+		BigInteger retVal = xq.multiply(c[0]).add(xp.multiply(c[1]));
+
+		return retVal.mod(primes[0].multiply(primes[1]));
 	}
 }

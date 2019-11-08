@@ -13,16 +13,19 @@ public class TestRSAOnNumbers {
 
 	public static void main(String[] args) throws InvalidKeyException {
 		RSA rsa = new RSA();
-		KeyPair keys = rsa.keyGen(3,64);
+		KeyPair keys = rsa.keyGen(3,3*8);
 		RSA_PK pk = (RSA_PK)keys.getPublic();
 		RSA_SK sk = (RSA_SK)keys.getPrivate();
 		
 		
 		BigInteger m = new BigInteger("Foobar".getBytes(StandardCharsets.UTF_8));
-		//BigInteger m = new BigInteger("-100");
+		//BigInteger m = new BigInteger("32");
 		BigInteger c;
 		System.out.println("Nyílvános kulcs"+ pk);
 		System.out.println("titkos kulcs"+ sk);
+		System.out.println("Prímek:");
+		System.out.println("p="+sk.getPrimes()[0]);
+		System.out.println("q="+sk.getPrimes()[1]);
 		System.out.println("Modulus mérete:" + pk.getModulus().bitLength());
 		//Kódolás
 		c = rsa.encode(m, keys.getPublic());

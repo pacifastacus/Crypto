@@ -33,7 +33,7 @@ public final class RSA_SK extends RSAKey implements PrivateKey{
 
 	/**
 	 * Return an array that contains p and q primes
-	 * @return p and q
+	 * @return {p, q}
 	 */
 	public BigInteger[] getPrimes() {
 		return primes;

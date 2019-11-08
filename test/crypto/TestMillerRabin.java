@@ -12,7 +12,8 @@ public final class TestMillerRabin {
 
 	public static void main(String[] args) {
 		//System.out.println(Prime.millerRabin(BigInteger.valueOf(12738),7));
-		BigInteger num = new BigInteger(128, new Random());
+		BigInteger num = new BigInteger(64, new Random());
+//		num = BigInteger.valueOf(13);
 		BigInteger a = new BigInteger("100");
 		num.setBit(0);
 		System.out.println(a);
