@@ -36,6 +36,10 @@ public class RSA implements IAssymetricCryptoSystem<BigInteger>{
     	System.err.println("DONE");
     	return p;
 	}
+	
+	/**
+	 * @param size the bit size of the prime numbres
+	 */
 	@Override
 	public KeyPair keyGen(int confidency, int size) {
 		BigInteger p,
