@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.Console;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -77,7 +76,6 @@ public final class Program {
 	/**
 	 * 
 	 * @param filename
-	 * @param rsakey
 	 */
 	private void loadKey(String filename){
 		try (ObjectInputStream in_key = 

@@ -8,7 +8,8 @@ import java.util.Queue;
 
 import crypto.*;
 /**
- * 
+ * An example program, that generates key with primes that bitlenghts asked.
+ * Then it takes an input text files, encrypt, then decrypt it.
  * @author Palkovics Dénes
  *
  */
