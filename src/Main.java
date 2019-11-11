@@ -50,8 +50,10 @@ public class Main {
 			} catch (InvalidKeyException e) {
 				System.err.println("keys.getPublic did not provided RSA key!");
 				e.printStackTrace();
+				fr.close();
 				return;
 			}
+			fr.close();
 			System.out.println("\ntitkos üzenet-----------------------------\n");
 			for (BigInteger e : code) {
 				System.out.println(e);

@@ -31,19 +31,6 @@ public class Algorithm {
 	}
 	
 	/**
-	 * Quadratic modular quick-exponentiation
-	 * @param num - base 
-	 * @param exp - exponent
-	 * @param mod - modulo
-	 * @return n^e mod m
-	 */
-	static long quickPow(int num, int exp, int mod) {
-		return quickPow(BigInteger.valueOf(num), 
-				BigInteger.valueOf(exp), 
-				BigInteger.valueOf(mod)).longValue();
-	}
-	
-	/**
 	 * Euclidean algorithm
 	 * @param a
 	 * @param b
@@ -105,7 +92,7 @@ public class Algorithm {
      * Test is num is a prime, using the Miller-Rabin test.
      * @param num is the tested number
      * @param trials is the number of tests; the certainity level 
-     * @return true, if num is probably a prime
+     * @return true, if num is probably a prime, false if num surely composite
      */
 	static boolean isPrime(BigInteger num, int trials) {
 		BigInteger d = num.subtract(BigInteger.ONE);
@@ -164,6 +151,14 @@ public class Algorithm {
 		return true;
 	}
 	
+	/**
+	 * Calculate p*M_p and q*M_q, where M_p = p^-1 (mod q) and M_q = q^-1 (mod p).
+	 * The returned multipliers then can be used for solve the X = x_1 mod (p) X = x_2 mod (q) simultaneous equations
+	 * by X = x_q*c[0] + x_p*c[1]. 
+	 * @param p prime
+	 * @param q another prime
+	 * @return c[]: two-element array of multpliers
+	 */
 	static BigInteger[] preCrt(BigInteger p, BigInteger q) {
 		BigInteger[] c = new BigInteger[2];
 		BigInteger[] eea = extEuclid(p, q);
@@ -172,14 +167,22 @@ public class Algorithm {
 		return c;
 	}
 	
+	/**
+	 * Calculate x^e (mod p*q) applying the chinese remainder theorem.
+	 * (x = x_q*c[0] + x_p*c[1])
+	 * @param x
+	 * @param e
+	 * @param primes an array with p and q in it
+	 * @param c array of two multiplicants
+	 * @return 
+	 */
 	static BigInteger crt(BigInteger x, BigInteger e, BigInteger[] primes, BigInteger[] c) {
 		BigInteger xp, xq;
 		//xp = quickPow(x, e, primes[0]);
-		xp = x.modPow(e.mod(primes[0].subtract(BigInteger.ONE)), primes[0]);
+		xp = quickPow(x, e.mod(primes[0].subtract(BigInteger.ONE)), primes[0]);
 		//xq = quickPow(x, e, primes[1]);
-		xq = x.modPow(e.mod(primes[1].subtract(BigInteger.ONE)), primes[1]);
-		BigInteger retVal = xq.multiply(c[0]).add(xp.multiply(c[1]));
-
-		return retVal.mod(primes[0].multiply(primes[1]));
+		xq = quickPow(x, e.mod(primes[1].subtract(BigInteger.ONE)), primes[1]);
+		
+		return xq.multiply(c[0]).add(xp.multiply(c[1])).mod(primes[0].multiply(primes[1]));
 	}
 }
