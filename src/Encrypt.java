@@ -32,7 +32,7 @@ public final class Encrypt {
 			try(BufferedWriter secret = new BufferedWriter(new FileWriter("secret.bin"));
 				BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 				System.out.println("üzenet:");
-				rsa.encrypt(br.readLine(), publicKey)
+				rsa.encrypt(br.readLine(), publicKey);
 				System.out.println("Üzenet titkosítva! (secret.bin)");
 			} catch (IOException e) {
 				e.printStackTrace();
